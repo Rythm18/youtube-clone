@@ -1,5 +1,5 @@
 import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
+import { getAnalytics, isSupported } from "firebase/analytics";
 import { 
   getAuth,
   signInWithPopup,
@@ -18,9 +18,11 @@ const firebaseConfig = {
   measurementId: "G-65H3R0MNRM"
 };
 
+
+
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
+const analytics = isSupported().then(yes => yes ? getAnalytics(app) : null);
 
 const auth = getAuth(app);
 
