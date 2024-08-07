@@ -1,7 +1,6 @@
 import { Storage } from '@google-cloud/storage';
 import fs from 'fs';
 import ffmpeg from 'fluent-ffmpeg';
-import e from 'express';
 
 
 const storage = new Storage();
@@ -18,18 +17,24 @@ export function setUpDirectories(){
 }
 
 export function convertVideo(rawVideoName: string, processedVideoName: string){
-    return new Promise<void>((resolve, reject)=>{
-    ffmpeg(`${localRawVideoDirectory}/${rawVideoName}`)
-        .outputOptions("-vf", "scale=-1:360")
-        .on("end", ()=>{
-            console.log("Finished processing video.");
-            resolve();
-        })
-        .on("error", (err)=>{
-            console.log(`An error occured:  ${err.message}`);
-            reject(err);
-        })
-        .save(`${localProcessedVideoDirectory}/${processedVideoName}`);
+    const rawVideoPath = `${localRawVideoDirectory}/${rawVideoName}`;
+    
+    if (!fs.existsSync(rawVideoPath)) {
+        return Promise.reject(new Error(`Raw video file not found: ${rawVideoPath}`));
+    }
+
+    return new Promise<void>((resolve, reject) => {
+        ffmpeg(rawVideoPath)
+            .outputOptions("-vf", "scale=-1:360")
+            .on("end", () => {
+                console.log("Finished processing video.");
+                resolve();
+            })
+            .on("error", (err) => {
+                console.log(`An error occurred: ${err.message}`);
+                reject(err);
+            })
+            .save(`${localProcessedVideoDirectory}/${processedVideoName}`);
     });
 }
 
@@ -58,7 +63,7 @@ export async function deleteRawVideo(fileName: string) {
 }
 
 export async function deleteProcessedVideo(fileName: string) {
-    return deleteFile(`${localProcessedVideoDirectory}/${fileName}`);
+    return await deleteFile(`${localProcessedVideoDirectory}/${fileName}`);
 }
 
 

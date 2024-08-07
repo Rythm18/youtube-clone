@@ -7,6 +7,7 @@ import Link from "next/link";
 import SignIn from "./sign-in";
 import { User } from "firebase/auth";
 import { onAuthStateChangedHelper } from "../firebase/firebase";
+import { Upload } from "./upload";
 
 export function Navbar(){
 
@@ -26,6 +27,9 @@ export function Navbar(){
                 <Image width={90} height={20} 
                     src="/YouTube-Logo.wine.svg" alt="Logo"/>
            </Link>
+           {
+             user && <Upload />
+           }
            <SignIn user={user} />
         </nav>
     )
